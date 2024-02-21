@@ -1,0 +1,42 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import math
+
+# Load stock_yfinance_data.csv dataset
+stock_data = pd.read_csv('stock_yfinance_data.csv')
+
+# get stock names
+unique_stock_names = stock_data['Stock Name'].unique()
+
+# layout of graphs
+num_plots = len(unique_stock_names)
+num_cols = min(num_plots, 3)
+num_rows = math.ceil(num_plots / num_cols)
+fig, axes = plt.subplots(num_rows, num_cols, figsize=(15, 30))
+
+for i, stock_name in enumerate(unique_stock_names):
+    row = i // num_cols
+    col = i % num_cols
+
+    # Filter data by stock and create a copy to avoid the SettingWithCopyWarning
+    stock_data_filtered = stock_data[stock_data['Stock Name'] == stock_name].copy()
+
+    # Convert Date column to datetime format
+    stock_data_filtered['Date'] = pd.to_datetime(stock_data_filtered['Date'], format='%d/%m/%Y')
+
+    # Plot the graphs
+    axes[row, col].plot(stock_data_filtered['Date'], stock_data_filtered['Adj Close'], color='blue', linewidth=1.0)
+    axes[row, col].set_title(f'Stock Market Graph for {stock_name}')
+    axes[row, col].set_xlabel('Date')
+    axes[row, col].set_ylabel('Price (USD)')
+    axes[row, col].grid(True)
+
+    # Set x-axis limits
+    axes[row, col].set_xlim(stock_data_filtered['Date'].iloc[0], stock_data_filtered['Date'].iloc[-1])
+
+    # Rotate x-axis labels by 45 degrees
+    for tick in axes[row, col].get_xticklabels():
+        tick.set_rotation(45)
+
+plt.tight_layout()
+plt.show()
